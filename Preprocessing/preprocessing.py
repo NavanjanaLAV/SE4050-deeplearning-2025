@@ -56,3 +56,4 @@ def load_and_clean_data(fake_path, true_path, output_filename='fake_or_real_news
     print(f"Real: {len(combined_df[combined_df['label'] == 1])}")
 
     return combined_df
+

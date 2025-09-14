@@ -1,6 +1,14 @@
 import pandas as pd
 import re
+import nltk
 from nltk.corpus import stopwords
+
+# Ensure stopwords are downloaded
+try:
+    stop_words = set(stopwords.words('english'))
+except LookupError:
+    nltk.download('stopwords')
+    stop_words = set(stopwords.words('english'))
 
 def clean_text(text):
     """Clean text: lowercase, remove punctuation, numbers, stopwords."""

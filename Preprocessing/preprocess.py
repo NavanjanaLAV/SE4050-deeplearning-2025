@@ -1,14 +1,6 @@
 import pandas as pd
 import re
-import nltk
 from nltk.corpus import stopwords
-
-# Ensure stopwords are downloaded
-try:
-    stop_words = set(stopwords.words('english'))
-except LookupError:
-    nltk.download('stopwords')
-    stop_words = set(stopwords.words('english'))
 
 def clean_text(text):
     """Clean text: lowercase, remove punctuation, numbers, stopwords."""
@@ -27,7 +19,7 @@ def clean_text(text):
 
 def load_and_clean_data(fake_path, true_path, output_filename='fake_or_real_news_cleaned.csv'):
     """
-    Load, label, clean, and combine fake/real news datasets from Google Drive.
+    Load, label, clean, and combine fake/real news datasets.
     Saves cleaned CSV and returns DataFrame.
     """
     # Load datasets
@@ -43,25 +35,17 @@ def load_and_clean_data(fake_path, true_path, output_filename='fake_or_real_news
     true_df = true_df[['title', 'label']].copy()
 
     # Combine + shuffle
-    combined_df = pd.concat([fake_df, true_df], ignore_index=True)
-    combined_df = combined_df.sample(frac=1, random_state=42).reset_index(drop=True)
-
-    # Drop missing values
-    combined_df.dropna(subset=['title'], inplace=True)
-
-    # Drop duplicates
-    combined_df.drop_duplicates(subset=['title'], inplace=True)
+    data = pd.concat([fake_df, true_df], ignore_index=True)
+    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 
     # Clean titles
-    combined_df['clean_title'] = combined_df['title'].apply(clean_text)
+    data['title'] = data['title'].astype(str).apply(clean_text)
 
-    # Save cleaned file
-    combined_df.to_csv(output_filename, index=False)
+    # Save only title + label
+    data.to_csv(output_filename, index=False)
+    print(f"Cleaned dataset saved to {output_filename}")
 
-    print("\n✅ SUCCESS! File saved as:", output_filename)
-    print(f"Total samples: {len(combined_df)}")
-    print(f"Fake: {len(combined_df[combined_df['label'] == 0])}")
-    print(f"Real: {len(combined_df[combined_df['label'] == 1])}")
+    return data
 
-    return combined_df
-
+if __name__ == "__main__":
+    load_and_clean_data("Fake.csv", "True.csv")
